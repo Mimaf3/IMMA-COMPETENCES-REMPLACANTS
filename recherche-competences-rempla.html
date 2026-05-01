@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IMMA — Recherche Remplaçants</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#1e3a6e;--bm:#3060b0;--bl:#dce8f8;--green:#2d6a4f;--gl:#d8f3dc;--red:#9b2226;--rl:#fde8e8;--paper:#f7f5f0;--grey:#e8e4dd;--ink:#0f1923;--muted:#7a7469}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh}
+.header{background:var(--blue);position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.25)}
+.hi{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:18px;padding:12px 20px}
+.logo{font-family:'Instrument Serif',serif;font-size:26px;color:#fff;letter-spacing:1px}
+.logo-s{font-size:9px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:2px}
+.hdiv{width:1px;height:32px;background:rgba(255,255,255,.15)}
+.htitle{font-size:13px;color:rgba(255,255,255,.75);flex:1}
+.hbadge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);font-size:11px;padding:3px 10px;border-radius:99px}
+.sz{background:linear-gradient(180deg,var(--blue) 0%,#2a4f8e 100%);padding:22px 20px 26px}
+.si{max-width:1100px;margin:0 auto}
+.stitle{font-family:'Instrument Serif',serif;font-size:20px;color:#fff;margin-bottom:12px;font-weight:400}
+.sw{position:relative;max-width:560px}
+.sw::before{content:'🔍';position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none}
+.sinput{width:100%;background:rgba(255,255,255,.95);border:none;border-radius:10px;padding:11px 15px 11px 40px;font-family:inherit;font-size:15px;color:var(--ink);box-shadow:0 4px 20px rgba(0,0,0,.2)}
+.sinput:focus{outline:none;box-shadow:0 4px 20px rgba(0,0,0,.2),0 0 0 3px rgba(255,255,255,.3)}
+.tabs{display:flex;gap:6px;margin-top:11px;flex-wrap:wrap}
+.tab{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);font-size:12px;padding:5px 12px;border-radius:99px;cursor:pointer;font-family:inherit;transition:all .15s}
+.tab:hover,.tab.on{background:rgba(255,255,255,.9);color:var(--blue);border-color:transparent;font-weight:600}
+.srow{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.slbl{font-size:10px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1px;white-space:nowrap}
+.schip{font-size:11px;padding:4px 11px;border-radius:99px;cursor:pointer;font-family:inherit;border:1.5px solid;transition:all .15s;white-space:nowrap;background:rgba(255,255,255,.1);color:rgba(255,255,255,.85)}
+.subrow{margin-top:7px;display:flex;gap:5px;flex-wrap:wrap;padding-left:16px}
+.subchip{font-size:11px;padding:3px 10px;border-radius:99px;cursor:pointer;font-family:inherit;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);transition:all .15s}
+.subchip.on{background:rgba(255,255,255,.9);color:var(--blue);border-color:transparent;font-weight:600}
+.main{max-width:1100px;margin:0 auto;padding:22px 16px}
+.stats{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.stat{background:#fff;border-radius:10px;padding:12px 16px;box-shadow:0 1px 6px rgba(0,0,0,.06);flex:1;min-width:110px;border-left:4px solid var(--blue)}
+.stn{font-family:'Instrument Serif',serif;font-size:26px;color:var(--blue);line-height:1}
+.stl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-top:2px}
+.vbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+.rc{font-size:12px;color:var(--muted)}
+.vbtns{display:flex;gap:5px}
+.vbtn{background:#fff;border:1.5px solid var(--grey);border-radius:7px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit;color:var(--muted);transition:all .12s}
+.vbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:13px}
+.card{background:#fff;border-radius:12px;box-shadow:0 1px 8px rgba(0,0,0,.07);overflow:hidden;cursor:pointer;transition:transform .15s,box-shadow .15s;border:1.5px solid transparent}
+.card:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.11);border-color:var(--bl)}
+.card.sel{border-color:var(--blue);box-shadow:0 0 0 3px rgba(48,96,176,.12)}
+.ch{padding:13px 15px 9px;display:flex;align-items:flex-start;justify-content:space-between}
+.cname{font-family:'Instrument Serif',serif;font-size:17px;color:var(--blue);line-height:1.2}
+.cmeta{font-size:10px;color:var(--muted);margin-top:2px}
+.vbadge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px;white-space:nowrap}
+.vbv{background:var(--gl);color:var(--green)}
+.vbn{background:var(--grey);color:var(--muted)}
+.bars{padding:0 15px 11px}
+.brow{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.bdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.bname{font-size:10px;color:var(--muted);width:90px;flex-shrink:0}
+.bbg{flex:1;background:var(--grey);border-radius:99px;height:4px}
+.bfill{height:4px;border-radius:99px}
+.bpct{font-size:9px;color:var(--muted);width:22px;text-align:right}
+.cfoot{border-top:1px solid var(--grey);padding:8px 15px;display:flex;align-items:center;justify-content:space-between}
+.cdate{font-size:10px;color:var(--muted)}
+.clink{font-size:11px;color:var(--bm);font-weight:600;background:none;border:none;cursor:pointer;font-family:inherit;padding:0}
+/* EXAM VIEW */
+.xview{display:none}
+.xview.on{display:block}
+.cview.off{display:none}
+.rfilter{background:#fff;border-radius:10px;padding:11px 15px;margin-bottom:13px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.rfl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.rfchips{display:flex;flex-wrap:wrap;gap:5px}
+.rfchip{font-size:11px;padding:4px 10px;border-radius:99px;cursor:pointer;font-family:inherit;border:1.5px solid #dde4ef;background:#fff;color:var(--ink);transition:all .12s}
+.rfchip.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.rfclear{font-size:11px;color:var(--red);background:none;border:none;cursor:pointer;font-family:inherit;font-weight:600;margin-top:6px;display:none}
+.esec{margin-bottom:20px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 8px rgba(0,0,0,.07)}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.esch{padding:10px 15px;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700}
+.esubh{padding:5px 15px;font-size:11px;font-style:italic;font-weight:600;color:#555;background:rgba(0,0,0,.03)}
+.etbl{width:100%;border-collapse:collapse}
+.etbl th{padding:6px 7px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;text-align:left;background:#f5f7fa;border-bottom:1px solid #eee;white-space:normal;word-break:break-word}
+.etbl th:not(:first-child){text-align:center;width:60px}
+.etbl td{padding:5px 9px;border-bottom:1px solid #f0ece6;font-size:12px}
+.etbl td:not(:first-child){text-align:center}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.do{background:var(--green)}.dn{background:var(--red)}.dd{background:#ddd}
+/* PANEL */
+.overlay{position:fixed;inset:0;background:rgba(15,25,35,.5);z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;display:flex;justify-content:flex-end}
+.overlay.on{opacity:1;pointer-events:all}
+.panel{background:#fff;width:min(540px,100vw);height:100vh;overflow-y:auto;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);box-shadow:-6px 0 40px rgba(0,0,0,.2)}
+.overlay.on .panel{transform:translateX(0)}
+.ph{background:var(--blue);padding:16px 20px;position:sticky;top:0;z-index:10}
+.pclose{background:rgba(255,255,255,.15);border:none;color:#fff;width:28px;height:28px;border-radius:50%;font-size:16px;cursor:pointer;float:right;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.pname{font-family:'Instrument Serif',serif;font-size:22px;color:#fff}
+.pmeta{font-size:11px;color:rgba(255,255,255,.6);margin-top:2px}
+.pid{padding:13px 20px;background:var(--bl);display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.pi .pl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.pi .pv{font-size:12px;font-weight:500;margin-top:1px}
+.pf{padding:11px 20px;border-top:1px solid #eef0f5;background:#fafbfd}
+.pfl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.pfchips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px}
+.pmc{font-size:11px;padding:4px 10px;border-radius:99px;cursor:pointer;font-family:inherit;border:1.5px solid;transition:all .12s}
+.psc{font-size:11px;padding:3px 9px;border-radius:99px;cursor:pointer;font-family:inherit;border:1.5px solid #dde4ef;background:#fff;color:var(--ink);transition:all .12s}
+.psc.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.pclear{font-size:11px;color:var(--red);background:none;border:none;cursor:pointer;font-family:inherit;font-weight:600;padding:0;display:none;margin-top:3px}
+.pbody{padding:16px 20px}
+.psec{margin-bottom:14px}
+.psect{font-size:12px;font-weight:700;text-transform:uppercase;padding:7px 10px;border-radius:6px;display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.pspp{font-size:10px;opacity:.8}
+.pexams{display:flex;flex-wrap:wrap;gap:4px}
+.pchip{font-size:11px;padding:3px 8px;border-radius:99px;font-weight:500}
+.co{background:var(--gl);color:var(--green)}.cn{background:var(--rl);color:var(--red)}.cnd{background:var(--grey);color:var(--muted)}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.stats{gap:8px}.panel{width:100vw}}
+</style>
+</head>
+<body>
+
+<!-- PASSWORD -->
+<div id="pwd-screen" style="position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#1e3a6e 0%,#3060b0 100%);display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif">
+  <div style="background:white;border-radius:20px;padding:40px 32px;width:90%;max-width:360px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="font-family:'Instrument Serif',serif;font-size:32px;color:#1e3a6e;letter-spacing:1px;margin-bottom:4px">IMMA</div>
+    <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px">imma-radiologie.fr</div>
+    <div style="font-size:13px;color:#374151;margin-bottom:20px;font-weight:500">Interface de recherche — Accès réservé</div>
+    <input id="pwd-input" type="password" placeholder="Mot de passe"
+      style="width:100%;padding:12px 16px;border:2px solid #dde4ef;border-radius:10px;font-size:16px;font-family:inherit;text-align:center;letter-spacing:3px;outline:none;-webkit-appearance:none;margin-bottom:10px;display:block">
+    <div id="pwd-err" style="color:#c62828;font-size:13px;margin-bottom:10px;min-height:18px"></div>
+    <button id="pwd-btn" type="button" style="width:100%;padding:13px;background:#1e3a6e;color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;-webkit-appearance:none;display:block">Accéder</button>
+  </div>
+</div>
+
+<div class="header">
+  <div class="hi">
+    <div><div class="logo">IMMA</div><div class="logo-s">imma-radiologie.fr</div></div>
+    <div class="hdiv"></div>
+    <div class="htitle">Gestion des Remplaçants</div>
+    <div class="hbadge" id="hbadge">— remplaçants</div>
+  </div>
+</div>
+
+<div class="sz"><div class="si">
+  <div class="stitle">Rechercher un remplaçant ou une compétence</div>
+  <div class="sw"><input class="sinput" id="q" type="text" placeholder="Nom, prénom, examen…" oninput="onQ(this.value)"></div>
+  <div class="tabs">
+    <button class="tab on" id="tab-name" onclick="setMode('name',this)">👤 Par nom</button>
+    <button class="tab" id="tab-veh" onclick="setMode('vehicule',this)">🚗 Véhiculés uniquement</button>
+  </div>
+  <div class="srow" style="margin-top:12px">
+    <span class="slbl">Section :</span>
+    <div id="schips"></div>
+  </div>
+  <div class="subrow" id="subrow" style="display:none"></div>
+</div></div>
+
+<!-- LOADING -->
+<div id="loading" style="display:flex;align-items:center;justify-content:center;min-height:60vh;background:var(--paper)">
+  <div style="text-align:center">
+    <div style="font-size:40px;animation:spin 1s linear infinite;display:inline-block">⏳</div>
+    <div style="margin-top:12px;color:var(--muted);font-size:14px">Chargement des données…</div>
+  </div>
+</div>
+<style>@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>
+
+<div id="main-content" style="display:none">
+<div class="main">
+  <div class="stats">
+    <div class="stat"><div class="stn" id="s0">—</div><div class="stl">Remplaçants</div></div>
+    <div class="stat" style="border-left-color:var(--green)"><div class="stn" id="s1" style="color:var(--green)">—</div><div class="stl">Véhiculés</div></div>
+    <div class="stat" style="border-left-color:var(--red)"><div class="stn" id="s2" style="color:var(--red)">—</div><div class="stl">Non véhiculés</div></div>
+  </div>
+  <div class="vbar">
+    <div class="rc" id="rc">—</div>
+    <div class="vbtns">
+      <button class="vbtn on" id="vbc" onclick="setView('cards')">⊞ Cartes</button>
+      <button class="vbtn" id="vbt" onclick="setView('table')">☰ Tableau</button>
+    </div>
+  </div>
+  <div class="cview" id="cview"><div class="grid" id="grid"></div></div>
+  <div class="xview" id="xview">
+    <div class="rfilter">
+      <div class="rfl">Filtrer par remplaçant</div>
+      <div class="rfchips" id="rfchips"></div>
+      <button class="rfclear" id="rfclear" onclick="clearRF()">✕ Effacer</button>
+    </div>
+    <div id="xcontent"></div>
+  </div>
+</div>
+
+</div><!-- /main-content -->
+
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeP()">
+  <div class="panel">
+    <div class="ph">
+      <button class="pclose" onclick="closeP()">×</button>
+      <div class="pname" id="pname">—</div>
+      <div class="pmeta" id="pmeta">—</div>
+    </div>
+    <div class="pid" id="pid"></div>
+    <div class="pf">
+      <div class="pfl">Modalités</div>
+      <div class="pfchips" id="pmchips"></div>
+      <div id="psub-hint" style="font-size:11px;color:var(--muted);font-style:italic;margin-bottom:4px">Sélectionnez une modalité pour filtrer par sous-section</div>
+      <div id="pswrap" style="display:none">
+        <div class="pfl" style="margin-top:5px">Sous-sections</div>
+        <div class="pfchips" id="pschips"></div>
+      </div>
+      <button class="pclear" id="pclear" onclick="clearPF()">✕ Réinitialiser les filtres</button>
+    </div>
+    <div class="pbody" id="pbody"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+var SECS=[
+  {key:'radio',label:'Radiographies Standard',color:'#9cc2e4',dark:true,
+   exams:['Age Osseux','ASP','ATM','Bassin / Hanche Adulte','Bassin / Hanche enfant (ou bébé)','Gonométrie / Podométrie','Grill Costal','Membre Supérieur (Epaule, Coude, Main, poignet, doigt)','Membre Inférieur (Hanche, Genou, Cheville, Pied, orteils)','Panoramique Dentaire','Rachis cervical','Rachis dorsal','Rachis Lombaire','Rachis Entier (Scoliose)','Sacrum / Coccyx','Sinus (Blondeau) et Végétations','Thorax','TOGD']},
+  {key:'echo',label:'Échographies',color:'#ffd966',dark:true,
+   subs:{
+     'EtageAbdominal':['Abdominale','Abdomino-Pelvienne (général, sans endo)','Fibroscan / Elastométrie','Hépatique','Inguinale','Rénale / Vésicale','Paroi Abdominale'],
+     'EtagePelvien':['Pelvienne Femme Sus Pubienne','Pelvienne Femme Endo Vaginale','Prostate Sus Pubienne','Prostate Endo Rectale','Verge / Pénis','Obstétrique','Testiculaire'],
+     'EtageTeEtCou':['Cervicale (Ganglions)','Glandes Salivaires','Orbitaire','Parathyroïde','Thyroïde','Transfontanellaire (ETF)'],
+     'OsteoArticulaire':['Cheville','Coude','Doigt / Main','Epaule','Genou','Hanche / Bassin Adulte','Hanche / Bassin Bébé','Musculaire','Partie Molle','Pied','Poignet'],
+     'Dopplers':['Aortique','Artères Membres Inférieurs','Artères Membres Supérieurs','Artères Rénales','TSA','Transcranien','Veineux Membres Inférieurs : Phlébite','Veineux Membres Inférieurs : Varices','Veineux Membres Supérieurs']}},
+  {key:'seno',label:'Sénologie',color:'#f48af7',dark:true,
+   exams:['Mammographie Standard','Mammographie de Dépistage (Attestation FORCOMED, à fournir)','Echographie Mammaire et Axillaire']},
+  {key:'cone',label:'Cone Beam',color:'#333333',dark:false,
+   exams:['ATM','Implant Dentaire','Rochers','Sinus']},
+  {key:'interv',label:'Interventionnel',color:'#7a7a7a',dark:false,
+   exams:['Cytoponctions','Micro biopsie Mammaire sous Echographie','Macro Biopsie Mammaire sous Stéréotaxie','Infiltrations Echoguidées','Infiltrations Radioguidées','Biopsies sous Echographie','Biopsies sous Scanner']},
+  {key:'irm',label:'IRM',color:'#6f2f9f',dark:false,
+   subs:{
+     'IRM_EtageTeEtCou':['Cérébrale Standard','Cérébrale AVC','Cérébrale SEP','Cérébrale Mémoire','Cervicale (parties molles)','CAI','Hypophyse','Hydrops','Massif Facial','ORL (onco)','Parotide','Rochers (Cholesteatome)','TSA + Willis'],
+     'IRM_EtageRachidien':['Rachis Cervical','Rachis Dorsal','Rachis Lombaire','Médullaire','Sacro Iliaques'],
+     'IRM_OsteoArticulaire':['Arthro-IRM','ATM','Bassin / Hanche','Cheville','Coude','Doigt / Main','Epaule','Genou','Musculaire / Parties Molles','Pied','Poignet'],
+     'IRM_EtageTAP':['Abdomen Général','Hépatique','Mammaire','Pelvis Féminin','Prostate','Rectum / Canal Anal','Rénale','Surrénale','Thoracique']}},
+  {key:'scanner',label:'Scanner',color:'#833b0a',dark:false,
+   subs:{
+     'Scanner_EtageTeEtCou':['Cérébral','Cervical Général','Cervical ORL','Rochers','Sinus','TSA'],
+     'Scanner_EtageRachidien':['Rachis Cervical','Rachis Dorsal','Rachis Lombaire'],
+     'Scanner_OsteoArticulaire':['Arthroscanner','ATM','Bassin / Hanche','Cheville','Coude','Doigt / Main','Epaule','Genou','Musculaire / Parties Molles','Pied','Poignet','TAGT'],
+     'Scanner_EtageTAP':['Thorax','Abdomen-Pelvis','Uroscanner'],
+     'Scanner_CardioVasculaire':['Angioscanner Aortique','Angioscanner Membres Inférieurs','Bilan Pré-TAVI','Coroscanner','Score Calcique']}}
+];
+
+// ── APPS SCRIPT URL ──────────────────────────────────────────────────────────
+
+var SUB_LABELS = {
+  'EtageAbdominal': 'Étage Abdominal',
+  'EtagePelvien': 'Étage Pelvien',
+  'EtageTeEtCou': 'Étage Tête et Cou',
+  'OsteoArticulaire': 'Ostéo-Articulaire',
+  'Dopplers': 'Dopplers',
+  'IRM_EtageTeEtCou': 'Étage Tête et Cou',
+  'IRM_EtageRachidien': 'Étage Rachidien',
+  'IRM_OsteoArticulaire': 'Ostéo-Articulaire',
+  'IRM_EtageTAP': 'Étage Thoraco Abdomino Pelvien',
+  'Scanner_EtageTeEtCou': 'Étage Tête et Cou',
+  'Scanner_EtageRachidien': 'Étage Rachidien',
+  'Scanner_OsteoArticulaire': 'Ostéo-Articulaire',
+  'Scanner_EtageTAP': 'Étage Thoraco Abdomino Pelvien',
+  'Scanner_CardioVasculaire': 'Cardio-Vasculaire',
+};
+
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzJiceFsyHoTt_CezDynXSVZUXZOQtHXKWY98lug4Eum75K5FZl0y0xnINkJQfQ12Sj/exec';
+var ADMIN_PWD  = 'IMMA_ADMIN'; // password to delete entries
+
+// DATA will be populated from Sheets via Apps Script
+var DATA = [];
+
+// ── LOAD DATA FROM APPS SCRIPT ────────────────────────────────────────────────
+function loadData(callback) {
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('main-content').style.display = 'none';
+
+  function showError(msg) {
+    document.getElementById('loading').innerHTML =
+      '<div style="text-align:center;color:#fff;padding:40px">'
+      +'<div style="font-size:48px">⚠️</div>'
+      +'<div style="margin-top:14px;font-size:14px;line-height:1.6">'+msg+'</div>'
+      +'<button onclick="location.reload()" style="margin-top:20px;padding:10px 20px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:8px;cursor:pointer;font-size:14px">🔄 Réessayer</button>'
+      +'</div>';
+  }
+
+  function done(data) {
+    DATA = parseSheetData(data);
+    DATA.sort(function(a,b){return a.nom.localeCompare(b.nom,'fr');});
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    if (callback) callback();
+  }
+
+  // JSONP direct — seule méthode fiable avec Apps Script (pas de CORS)
+  var cbName = 'imma_cb_' + Date.now();
+  var tag = document.createElement('script');
+  var finished = false;
+
+  window[cbName] = function(resp) {
+    if (finished) return;
+    finished = true;
+    clearTimeout(timer);
+    try { document.head.removeChild(tag); } catch(e) {}
+    delete window[cbName];
+    if (resp && resp.status === 'ok') {
+      done(resp.data);
+    } else {
+      showError('Erreur Apps Script : ' + (resp ? resp.message : 'réponse vide'));
+    }
+  };
+
+  var timer = setTimeout(function() {
+    if (finished) return;
+    finished = true;
+    delete window[cbName];
+    showError('Délai dépassé.<br>Vérifiez que le Apps Script est déployé avec accès <b>Tout le monde</b>.');
+  }, 15000);
+
+  tag.onerror = function() {
+    if (finished) return;
+    clearTimeout(timer);
+    finished = true;
+    showError('Erreur réseau — impossible de joindre le Apps Script.');
+  };
+
+  tag.src = SCRIPT_URL + '?callback=' + cbName + '&_=' + Date.now();
+  document.head.appendChild(tag);
+}
+
+function allExams(sec) {
+  if (sec.exams) return sec.exams;
+  var a = [];
+  Object.values(sec.subs || {}).forEach(function(exs) { a = a.concat(exs); });
+  return a;
+}
+
+function parseSheetData(rows) {
+  return rows.filter(function(row) {
+    return row.nom && row.nom.toString().trim() !== '';
+  }).map(function(row, idx) {
+
+    // Les clés dans le sheet ont la forme "radio|Age Osseux" ou "echo|EtageAbdominal|Abdominale"
+    // On utilise la clé COMPLÈTE pour éviter les collisions entre sections
+    // (ex: "Musculaire" existe en Écho, IRM et Scanner)
+
+    var allEx = SECS.map(function(sec) {
+      var vals = {};
+      if (sec.exams) {
+        // Sections plates: clé = "secKey|examName"
+        sec.exams.forEach(function(exam) {
+          var key = sec.key + '|' + exam;
+          var v = row[key] ? row[key].toString().toLowerCase() : null;
+          vals[exam] = v || null;
+        });
+      } else if (sec.subs) {
+        // Sections avec sous-sections: clé = "secKey|subKey|examName"
+        Object.keys(sec.subs).forEach(function(sub) {
+          sec.subs[sub].forEach(function(exam) {
+            var key = sec.key + '|' + sub + '|' + exam;
+            var v = row[key] ? row[key].toString().toLowerCase() : null;
+            vals[exam] = v || null;
+          });
+        });
+      }
+      return {
+        key: sec.key, label: sec.label, color: sec.color, dark: sec.dark,
+        vals: vals, subs: sec.subs, exams: sec.exams
+      };
+    });
+
+// Scores par section
+    var secScores = {};
+    SECS.forEach(function(sec) {
+      var exs = allExams(sec);
+      var secEx = allEx.find(function(s){return s.key===sec.key;});
+      var oui = exs.filter(function(e){return secEx.vals[e]==='oui';}).length;
+      secScores[sec.key] = Math.round(oui / exs.length * 100);
+    });
+
+    // Format date lisible
+    var dateStr = row.date || '—';
+    try {
+      var d = new Date(row.date);
+      if (!isNaN(d)) dateStr = d.toLocaleDateString('fr-FR');
+    } catch(e) {}
+
+    return {
+      idx:       idx,
+      nom:       row.nom       || '',
+      prenom:    row.prenom    || '',
+      adresse:   row.adresse   || '—',
+      tel:       row.tel       || '—',
+      mail:      row.mail      || '—',
+      vehicule:  (row.vehicule||'').toLowerCase() === 'oui',
+      date:      dateStr,
+      remarques: row.remarques || '',
+      pdfUrl:    row.pdf_url   || '',
+      secScores: secScores,
+      allEx:     allEx
+    };
+  });
+}
+
+DATA.sort(function(a,b){return a.nom.localeCompare(b.nom,'fr');});
+
+// State
+var mode='name',search='',activeSec=null,activeSub=null;
+var activeReps=[],currentView='cards';
+var panelRep=null,panelMods=[],panelSubs=[];
+
+// ── BUILD SECTION CHIPS ───────────────────────────────────────────────────────
+function buildSChips(){
+  var el=document.getElementById('schips');
+  el.innerHTML='';
+  SECS.forEach(function(sec){
+    var b=document.createElement('button');
+    b.className='schip';b.style.borderColor=sec.color+'cc';b.dataset.key=sec.key;
+    b.textContent=sec.label;
+    b.onclick=function(){selSec(sec.key,b);};
+    el.appendChild(b);
+  });
+}
+
+function selSec(key,btn){
+  activeSec=activeSec===key?null:key;
+  activeSub=null;
+  // If name search active, auto-filter reps to matched ones
+  if(mode==='name' && search && activeSec){
+    var matched=filtered();
+    activeReps=matched.map(function(r){return r.idx;});
+    // Sync rep chips
+    document.querySelectorAll('.rfchip').forEach(function(b){
+      var idx=parseInt(b.dataset.idx);
+      if(activeReps.indexOf(idx)>=0){b.classList.add('on');}
+      else{b.classList.remove('on');}
+    });
+    document.getElementById('rfclear').style.display=activeReps.length?'block':'none';
+  }
+  document.querySelectorAll('.schip').forEach(function(b){
+    var s=SECS.find(function(x){return x.key===b.dataset.key;});
+    if(b.dataset.key===activeSec){b.style.background=s.color;b.style.color=s.dark?'#1a1a2e':'#fff';}
+    else{b.style.background='rgba(255,255,255,.1)';b.style.color='rgba(255,255,255,.85)';}
+  });
+  buildSubRow();update();
+}
+
+function buildSubRow(){
+  var row=document.getElementById('subrow');
+  row.innerHTML='';row.style.display='none';
+  if(!activeSec)return;
+  var sec=SECS.find(function(s){return s.key===activeSec;});
+  if(!sec||!sec.subs)return;
+  row.style.display='flex';
+  var all=document.createElement('button');
+  all.className='subchip'+(activeSub===null?' on':'');all.textContent='Tout';
+  all.onclick=function(){activeSub=null;buildSubRow();renderX();};row.appendChild(all);
+  Object.keys(sec.subs).forEach(function(sub){
+    var b=document.createElement('button');
+    b.className='subchip'+(activeSub===sub?' on':'');b.textContent=SUB_LABELS[sub]||sub;
+    b.onclick=function(){activeSub=activeSub===sub?null:sub;buildSubRow();renderX();};
+    row.appendChild(b);
+  });
+}
+
+// ── BUILD REP FILTER CHIPS ────────────────────────────────────────────────────
+function buildRFChips(){
+  var el=document.getElementById('rfchips');el.innerHTML='';
+  DATA.forEach(function(rep){
+    var b=document.createElement('button');b.className='rfchip';b.dataset.idx=rep.idx;
+    b.textContent=rep.prenom[0]+'. '+rep.nom;
+    b.onclick=function(){toggleRF(rep.idx,b);};el.appendChild(b);
+  });
+}
+function toggleRF(idx,btn){
+  var i=activeReps.indexOf(idx);
+  if(i>=0){activeReps.splice(i,1);btn.classList.remove('on');}
+  else{activeReps.push(idx);btn.classList.add('on');}
+  document.getElementById('rfclear').style.display=activeReps.length?'block':'none';
+  renderX();
+}
+function clearRF(){
+  activeReps=[];
+  document.querySelectorAll('.rfchip').forEach(function(b){b.classList.remove('on');});
+  document.getElementById('rfclear').style.display='none';
+  renderX();
+}
+
+// ── MODE / SEARCH / VIEW ─────────────────────────────────────────────────────
+function setMode(m){
+  mode=m;
+  document.getElementById('tab-name').classList.toggle('on',m==='name');
+  document.getElementById('tab-veh').classList.toggle('on',m==='vehicule');
+  if(m!=='section'){activeSec=null;activeSub=null;
+    document.querySelectorAll('.schip').forEach(function(b){b.style.background='rgba(255,255,255,.1)';b.style.color='rgba(255,255,255,.85)';});
+    document.getElementById('subrow').style.display='none';}
+  update();
+}
+function onQ(v){
+  search=v;
+  if(!v){
+    // Clear everything on empty search
+    activeSec=null;activeSub=null;activeReps=[];
+    document.querySelectorAll('.schip').forEach(function(b){b.style.background='rgba(255,255,255,.1)';b.style.color='rgba(255,255,255,.85)';});
+    document.getElementById('subrow').style.display='none';
+    document.querySelectorAll('.rfchip').forEach(function(b){b.classList.remove('on');});
+    document.getElementById('rfclear').style.display='none';
+  } else if(mode!=='name'){
+    // Exam text search: clear section filters
+    activeSec=null;activeSub=null;
+    document.querySelectorAll('.schip').forEach(function(b){b.style.background='rgba(255,255,255,.1)';b.style.color='rgba(255,255,255,.85)';});
+    document.getElementById('subrow').style.display='none';
+  }
+  update();
+}
+function setView(v){
+  currentView=v;
+  document.getElementById('vbc').classList.toggle('on',v==='cards');
+  document.getElementById('vbt').classList.toggle('on',v==='table');
+  update();
+}
+
+function update(){
+  var hasNameMatch = search && filtered().length > 0;
+  var isNameSearch = mode==='name' && search && hasNameMatch && !activeSec;
+  var isExamSearch = search && !hasNameMatch; // no name match -> treat as exam search
+
+  if(isNameSearch){
+    // Name found -> cartes
+    document.getElementById('cview').classList.remove('off');
+    document.getElementById('xview').classList.remove('on');
+    document.getElementById('vbc').classList.add('on');
+    document.getElementById('vbt').classList.remove('on');
+    renderCards();
+  } else if(activeSec || isExamSearch || currentView==='table'){
+    // Section selected OR exam search OR table view -> tableau
+    document.getElementById('cview').classList.add('off');
+    document.getElementById('xview').classList.add('on');
+    document.getElementById('vbc').classList.remove('on');
+    document.getElementById('vbt').classList.add('on');
+    renderX();
+  } else {
+    // Default -> cartes
+    document.getElementById('cview').classList.remove('off');
+    document.getElementById('xview').classList.remove('on');
+    renderCards();
+  }
+  updateStats();
+}
+
+
+// ── FILTER ────────────────────────────────────────────────────────────────────
+function filtered(){
+  var d=DATA.slice();
+  if(mode==='vehicule')d=d.filter(function(r){return r.vehicule;});
+  if(search&&mode==='name'){
+    var q=search.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    d=d.filter(function(r){
+      return (r.nom+' '+r.prenom).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').indexOf(q)>=0;
+    });
+  }
+  return d;
+}
+
+// ── CARDS ─────────────────────────────────────────────────────────────────────
+function renderCards(){
+  var data=filtered();
+  document.getElementById('rc').textContent=data.length+' remplaçant'+(data.length>1?'s':'')+' trouvé'+(data.length>1?'s':'');
+  var g=document.getElementById('grid');g.innerHTML='';
+  data.forEach(function(rep){
+    var pct=Math.round(Object.values(rep.secScores).reduce(function(a,b){return a+b;},0)/SECS.length);
+    var el=document.createElement('div');
+    el.className='card'+(panelRep&&panelRep.idx===rep.idx?' sel':'');
+    el.onclick=function(){openP(rep);};
+    el.innerHTML='<div class="ch"><div>'
+      +'<div class="cname">'+rep.prenom+' '+rep.nom+'</div>'
+      +'<div class="cmeta">'+rep.date+' · '+pct+'%</div>'
+      +'</div><span class="vbadge '+(rep.vehicule?'vbv':'vbn')+'">'+(rep.vehicule?'🚗 Véhiculé':'🚶 Non véhiculé')+'</span></div>'
+      +'<div class="bars">'+SECS.map(function(sec){
+        return '<div class="brow"><div class="bdot" style="background:'+sec.color+'"></div>'
+          +'<div class="bname">'+sec.label.substring(0,12)+(sec.label.length>12?'…':'')+'</div>'
+          +'<div class="bbg"><div class="bfill" style="width:'+rep.secScores[sec.key]+'%;background:'+sec.color+'"></div></div>'
+          +'<div class="bpct">'+rep.secScores[sec.key]+'%</div></div>';
+      }).join('')+'</div>'
+      +'<div class="cfoot"><div class="cdate">📅 '+rep.date+'</div>'
+      +'<button class="clink" onclick="event.stopPropagation();openP(DATA['+rep.idx+'])">Voir fiche →</button></div>';
+    g.appendChild(el);
+  });
+}
+
+// ── EXAM TABLE VIEW ───────────────────────────────────────────────────────────
+function renderX(){
+  var visReps=activeReps.length>0?DATA.filter(function(r){return activeReps.indexOf(r.idx)>=0;}):DATA;
+  var secsToShow=activeSec?SECS.filter(function(s){return s.key===activeSec;}):SECS;
+  var q=search?search.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''):'';
+  var el=document.getElementById('xcontent');el.innerHTML='';
+
+  secsToShow.forEach(function(sec){
+    var groups={};
+    if(sec.subs){
+      Object.keys(sec.subs).forEach(function(sub){
+        if(activeSub&&activeSub!==sub)return;
+        var exs=q?sec.subs[sub].filter(function(e){return e.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').indexOf(q)>=0;}):sec.subs[sub];
+        if(exs.length)groups[sub]=exs;
+      });
+    } else {
+      var exs=q?(sec.exams||[]).filter(function(e){return e.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').indexOf(q)>=0;}):(sec.exams||[]);
+      if(exs.length)groups['_']=exs;
+    }
+    if(!Object.keys(groups).length)return;
+    var wrap=document.createElement('div');wrap.className='esec';
+    var hdr=document.createElement('div');hdr.className='esch';
+    hdr.style.background=sec.color;hdr.style.color=sec.dark?'#1a1a2e':'#fff';
+    var tot=Object.values(groups).reduce(function(a,b){return a+b.length;},0);
+    hdr.innerHTML='<span>'+sec.label+'</span><span style="font-size:10px;opacity:.7">'+tot+' examens</span>';
+    wrap.appendChild(hdr);
+    Object.keys(groups).forEach(function(sub){
+      if(sub!=='_'){var sh=document.createElement('div');sh.className='esubh';sh.textContent='— '+(SUB_LABELS[sub]||sub);wrap.appendChild(sh);}
+      var tbl=document.createElement('table');tbl.className='etbl';
+      tbl.innerHTML='<thead><tr><th>Examen</th>'+visReps.map(function(r){
+      return '<th title="'+r.prenom+' '+r.nom+'" style="font-size:9px;white-space:normal;word-break:break-word;max-width:60px;text-align:center">'+r.prenom+'<br>'+r.nom+'</th>';
+    }).join('')+'</tr></thead>';
+      var tb=document.createElement('tbody');
+      groups[sub].forEach(function(exam){
+        var tr=document.createElement('tr');
+        tr.innerHTML='<td>'+exam+'</td>'+visReps.map(function(rep){
+          var sd=rep.allEx.find(function(s){return s.key===sec.key;});
+          var v=sd?sd.vals[exam]:null;
+          return '<td><span class="dot '+(v==='oui'?'do':'dn')+'" title="'+rep.prenom+' '+rep.nom+': '+(v||'non renseigné')+'"></span></td>';
+        }).join('');
+        tb.appendChild(tr);
+      });
+      tbl.appendChild(tb);
+      var ts=document.createElement('div');ts.className='tscroll';ts.appendChild(tbl);wrap.appendChild(ts);
+    });
+    el.appendChild(wrap);
+  });
+  if(!el.innerHTML)el.innerHTML='<div style="text-align:center;padding:60px;color:var(--muted)">Aucun résultat</div>';
+}
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function updateStats(){
+  document.getElementById('s0').textContent=DATA.length;
+  document.getElementById('s1').textContent=DATA.filter(function(r){return r.vehicule;}).length;
+  document.getElementById('s2').textContent=DATA.filter(function(r){return !r.vehicule;}).length;
+  document.getElementById('hbadge').textContent=DATA.length+' remplaçants';
+}
+
+// ── PANEL ─────────────────────────────────────────────────────────────────────
+function openP(rep){
+  panelRep=rep;panelMods=[];panelSubs=[];
+  document.getElementById('pname').textContent=rep.prenom+' '+rep.nom;
+  document.getElementById('pmeta').textContent='Formulaire du '+rep.date+(rep.vehicule?' · 🚗 Véhiculé':' · 🚶 Non véhiculé');
+  // PDF link
+  var existingLink=document.getElementById('pdf-link');
+  if(existingLink)existingLink.remove();
+  if(rep.pdfUrl){
+    var lnk=document.createElement('a');
+    lnk.id='pdf-link';lnk.href=rep.pdfUrl;lnk.target='_blank';
+    lnk.style.cssText='display:inline-block;margin-top:8px;font-size:12px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.3);padding:4px 10px;border-radius:99px';
+    lnk.innerHTML='📄 Voir le PDF';
+    document.getElementById('pmeta').after(lnk);
+  }
+  document.getElementById('pid').innerHTML=
+    '<div class="pi"><div class="pl">Adresse</div><div class="pv">'+rep.adresse+'</div></div>'
+    +'<div class="pi"><div class="pl">Téléphone</div><div class="pv">'+rep.tel+'</div></div>'
+    +'<div class="pi"><div class="pl">Email</div><div class="pv">'+rep.mail+'</div></div>'
+    +'<div class="pi"><div class="pl">Véhiculé(e)</div><div class="pv">'+(rep.vehicule?'✅ Oui':'❌ Non')+'</div></div>';
+  buildPMods();buildPSubs();renderPBody();syncPClear();
+  document.getElementById('overlay').classList.add('on');
+  renderCards();
+}
+function closeP(){panelRep=null;document.getElementById('overlay').classList.remove('on');renderCards();}
+
+function buildPMods(){
+  var el=document.getElementById('pmchips');el.innerHTML='';
+  panelRep.allEx.forEach(function(sec){
+    var on=panelMods.indexOf(sec.key)>=0;
+    var b=document.createElement('button');b.className='pmc';
+    b.style.borderColor=sec.color;
+    b.style.background=on?sec.color:'#fff';
+    b.style.color=on?(sec.dark?'#1a1a2e':'#fff'):'#1a1a2e';
+    b.textContent=sec.label;
+    b.onclick=function(){
+      var i=panelMods.indexOf(sec.key);
+      if(i>=0)panelMods.splice(i,1);else panelMods.push(sec.key);
+      panelSubs=[];buildPMods();buildPSubs();renderPBody();syncPClear();
+    };
+    el.appendChild(b);
+  });
+}
+
+function buildPSubs(){
+  var wrap=document.getElementById('pswrap');
+  var el=document.getElementById('pschips');el.innerHTML='';
+  // Only show sub-sections if at least one modalité is selected
+  if(panelMods.length===0){
+    wrap.style.display='none';
+    return;
+  }
+  var src=panelRep.allEx.filter(function(s){return panelMods.indexOf(s.key)>=0;});
+  var subs=[];
+  src.forEach(function(sec){if(sec.subs)Object.keys(sec.subs).forEach(function(s){if(subs.indexOf(s)<0)subs.push(s);});});
+  wrap.style.display=subs.length?'block':'none';
+  subs.forEach(function(sub){
+    var on=panelSubs.indexOf(sub)>=0;
+    var b=document.createElement('button');b.className='psc'+(on?' on':'');b.textContent=SUB_LABELS[sub]||sub;
+    b.onclick=function(){
+      var i=panelSubs.indexOf(sub);
+      if(i>=0)panelSubs.splice(i,1);else panelSubs.push(sub);
+      buildPSubs();renderPBody();syncPClear();
+    };
+    el.appendChild(b);
+  });
+}
+
+function syncPClear(){
+  document.getElementById('pclear').style.display=(panelMods.length||panelSubs.length)?'block':'none';
+}
+function clearPF(){
+  panelMods=[];panelSubs=[];
+  buildPMods();buildPSubs();renderPBody();syncPClear();
+}
+
+function renderPBody(){
+  var body=document.getElementById('pbody');body.innerHTML='';
+  var secs=panelMods.length>0?panelRep.allEx.filter(function(s){return panelMods.indexOf(s.key)>=0;}):panelRep.allEx;
+
+  secs.forEach(function(sec){
+    var vals=Object.entries(sec.vals);
+    if(panelSubs.length&&sec.subs){
+      vals=vals.filter(function(kv){
+        return Object.keys(sec.subs).some(function(sub){return panelSubs.indexOf(sub)>=0&&sec.subs[sub].indexOf(kv[0])>=0;});
+      });
+    }
+    if(!vals.length)return;
+
+    // Tri alphabétique des pills
+    vals.sort(function(a,b){return a[0].localeCompare(b[0],'fr');});
+
+    var oui=vals.filter(function(kv){return kv[1]==='oui';}).length;
+    var pct=Math.round(oui/vals.length*100);
+    var d=document.createElement('div');d.className='psec';
+    d.innerHTML='<div class="psect" style="background:'+sec.color+';color:'+(sec.dark?'#1a1a2e':'#fff')+'">'
+      +'<span>'+sec.label+'</span><span class="pspp">'+oui+'/'+vals.length+' · '+pct+'%</span></div>'
+      +'<div class="pexams">'+vals.map(function(kv){return '<span class="pchip '+(kv[1]==='oui'?'co':'cn')+'">'+kv[0]+'</span>';}).join('')+'</div>';
+    body.appendChild(d);
+  });
+
+  // Remarques
+  if(panelRep.remarques && panelRep.remarques.trim() && panelMods.length===0 && panelSubs.length===0){
+    var rem=document.createElement('div');
+    rem.style.cssText='margin-top:12px;padding:12px 14px;background:#f5f7fa;border-left:3px solid var(--bm);border-radius:0 8px 8px 0;font-size:12px;color:#444;line-height:1.6';
+    rem.innerHTML='<div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px">Remarques</div>'
+      +panelRep.remarques;
+    body.appendChild(rem);
+  }
+
+  if(!body.innerHTML)body.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Aucun examen pour cette sélection</div>';
+}
+
+// Expose globals needed by inline onclick
+window.DATA=DATA;window.openP=openP;window.clearRF=clearRF;window.clearPF=clearPF;window.closeP=closeP;window.setMode=setMode;window.onQ=onQ;window.setView=setView;
+
+// ── PASSWORD ────────────────────────────────────────────────────────────────
+var RECHERCHE_PWD_HASH = '383067ebb2e6e69f7b88db927a3daa94dec8bcdccc7be45ee96065b0646f26e4';
+
+function checkPwd() {
+  var val = document.getElementById('pwd-input').value;
+  if (!val) return;
+  // Hash SHA-256 via Web Crypto API (mot de passe jamais visible en clair)
+  crypto.subtle.digest('SHA-256', new TextEncoder().encode(val))
+    .then(function(buf) {
+      var h = Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+      if (h === RECHERCHE_PWD_HASH) {
+        var screen = document.getElementById('pwd-screen');
+        screen.style.transition = 'opacity .4s';
+        screen.style.opacity = '0';
+        setTimeout(function() { screen.style.display = 'none'; }, 400);
+        sessionStorage.setItem('imma_recherche_auth', '1');
+      } else {
+        document.getElementById('pwd-err').textContent = 'Mot de passe incorrect';
+        document.getElementById('pwd-input').value = '';
+        document.getElementById('pwd-input').style.borderColor = '#c62828';
+        setTimeout(function() { document.getElementById('pwd-input').style.borderColor = '#dde4ef'; }, 1000);
+      }
+    });
+}
+
+// Attache les listeners après chargement du DOM
+document.addEventListener('DOMContentLoaded', function() {
+  var btn = document.getElementById('pwd-btn');
+  var inp = document.getElementById('pwd-input');
+  if (btn) btn.addEventListener('click', checkPwd);
+  if (inp) inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') checkPwd(); });
+});
+
+// Init
+if (sessionStorage.getItem('imma_recherche_auth') === '1') {
+  document.getElementById('pwd-screen').style.display = 'none';
+} else {
+  setTimeout(function() {
+    var pi = document.getElementById('pwd-input');
+    if (pi) pi.focus();
+  }, 300);
+}
+
+buildSChips();
+loadData(function() {
+  buildRFChips();
+  updateStats();
+  renderCards();
+});
+
+})();
+</script>
+</body>
+</html>
